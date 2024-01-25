@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class HealthBarRotation : MonoBehaviour
 {
+    [SerializeField] GameObject cam;
     void Start()
     {
         
@@ -11,6 +12,6 @@ public class HealthBarRotation : MonoBehaviour
 
     void Update()
     {
-        
+        transform.LookAt(cam.transform.position);
     }
 }

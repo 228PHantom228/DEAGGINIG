@@ -2,8 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class PlayerController : MonoBehaviour
 {
@@ -16,19 +19,51 @@ public class PlayerController : MonoBehaviour
     float attackT = 0.657f;
     private int health;
     public bool dead;
-    [SerializeField] GameObject sword;
+    [SerializeField] GameObject sword_1, sword_2;
+    [SerializeField] Image healthBar;
+    [SerializeField] TMP_Text healthUI;
+    protected GameObject[] enemies;
+    GameObject enemy;
+    float distance;
+    GameObject sword;
 
     void Start()
     {
         health = 100;
         anim = GetComponent<Animator>();
+        sword = sword_1;
         currentSpeed = movementSpeed;
+        CheckEnemies();
     }
 
     void Update()
     {
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
+
+        float closestDistance = Mathf.Infinity;
+        foreach (GameObject closestEnemy in enemies)
+        {
+            closestEnemy.GetComponent<WalkEnemy>().arrow_off();
+            float checkDistance = Vector3.Distance(closestEnemy.transform.position, transform.position);
+            if (checkDistance < closestDistance)
+            {
+                if (closestEnemy.GetComponent<WalkEnemy>().dead == false)
+                {
+                    enemy = closestEnemy;
+                    closestDistance = checkDistance;
+                }
+            }
+        }
+        if (enemy != null)
+        {
+            distance = Vector3.Distance(transform.position, enemy.transform.position);
+            if (distance <= 6 && enemy.GetComponent<WalkEnemy>().dead == false)
+            {
+                transform.LookAt(enemy.transform.position);
+                enemy.GetComponent<WalkEnemy>().arrow_on();
+            }
+        }
     }
 
     void FixedUpdate()
@@ -42,11 +77,6 @@ public class PlayerController : MonoBehaviour
             anim.SetBool("Attack_2", false);
             canAttackAnim = false;
             currentSpeed = movementSpeed;
-        }
-
-        if (anim.GetBool("Attack_1") || anim.GetBool("Attack_2"))
-        {
-            currentSpeed = 1.5f;
         }
 
         //attack
@@ -134,8 +164,10 @@ public class PlayerController : MonoBehaviour
 
     public void ChangeHealth(int count)
     {
-
         health -= count;
+        float fillPercent = health / 100f;
+        healthBar.fillAmount = fillPercent;
+        healthUI.text = health.ToString();
         //textUpdate.SetHealth(health);
         //damageUi.SetActive(true);
         //Invoke("RemoveDamageUI", 0.1f);
@@ -145,5 +177,11 @@ public class PlayerController : MonoBehaviour
             dead = true;
             anim.SetBool("Die", true);
         }
+    }
+
+    void CheckEnemies()
+    {
+        enemies = GameObject.FindGameObjectsWithTag("enemy");
+        Invoke("CheckEnemies", 3f);
     }
 }

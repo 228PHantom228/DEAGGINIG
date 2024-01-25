@@ -10,13 +10,14 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected int damage;
     [SerializeField] protected float cooldown;
     [SerializeField] Image healthBar;
+    [SerializeField] Image arrow;
     protected GameObject player;
     protected Animator anim;
     protected Rigidbody rb;
     protected float distance;
     protected float timer;
     protected GameObject[] players;
-    bool dead = false;
+    public bool dead = false;
 
     // Start is called before the first frame update
     void Start()
@@ -75,6 +76,13 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    
+    public void arrow_on()
+    {
+        arrow.enabled = true;
+    }
 
+    public void arrow_off()
+    {
+        arrow.enabled = false;
+    }
 }

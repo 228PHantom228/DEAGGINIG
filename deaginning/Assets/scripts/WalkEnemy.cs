@@ -28,7 +28,7 @@ public class WalkEnemy : Enemy
             rb.MovePosition(transform.position + transform.forward * speed * Time.deltaTime);
             patrolTimer += Time.deltaTime;
             anim.SetBool("Run", true);
-            if (patrolTimer > 10) 
+            if (patrolTimer > 4) 
             {
                 transform.Rotate(new Vector3(0, 90, 0));
                 patrolTimer = 0;
