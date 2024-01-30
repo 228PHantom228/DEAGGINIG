@@ -19,19 +19,31 @@ public class PlayerController : MonoBehaviour
     float attackT = 0.657f;
     private int health;
     public bool dead;
-    [SerializeField] GameObject sword_1, sword_2;
+    [SerializeField] GameObject sword_OldSword, sword_TheLastLight;
     [SerializeField] Image healthBar;
     [SerializeField] TMP_Text healthUI;
+    [SerializeField] GameObject ChooseWindow;
+    [SerializeField] TMP_Text WeapInf;
     protected GameObject[] enemies;
     GameObject enemy;
     float distance;
     GameObject sword;
+    GameObject ObjForDestroy;
+    GameObject new_sword;
+
+    public enum Weapons
+    {
+        OldSword,
+        TheLastLight
+    }
+    Weapons weapons = Weapons.OldSword;
+    Weapons weap = Weapons.OldSword;
 
     void Start()
     {
         health = 100;
         anim = GetComponent<Animator>();
-        sword = sword_1;
+        sword = sword_OldSword;
         currentSpeed = movementSpeed;
         CheckEnemies();
     }
@@ -168,15 +180,48 @@ public class PlayerController : MonoBehaviour
         float fillPercent = health / 100f;
         healthBar.fillAmount = fillPercent;
         healthUI.text = health.ToString();
-        //textUpdate.SetHealth(health);
-        //damageUi.SetActive(true);
-        //Invoke("RemoveDamageUI", 0.1f);
 
         if (health <= 0)
         {
             dead = true;
             anim.SetBool("Die", true);
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        switch (other.gameObject.tag)
+        {
+            case "TheLastLight":
+                weap = Weapons.TheLastLight;
+                new_sword = sword_TheLastLight;
+                ObjForDestroy = other.gameObject;
+                WeapInf.text = "TheLastLight (base dmg: 15)";
+                ChooseWindow.SetActive(true);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void ChooseWeapon(Weapons weapon)
+    {
+        sword_OldSword.SetActive(weapon == Weapons.OldSword);
+        sword_TheLastLight.SetActive(weapon == Weapons.TheLastLight);
+    }
+
+    public void Choose_Y()
+    {
+        weapons = Weapons.TheLastLight;
+        sword = new_sword;
+        Destroy(ObjForDestroy);
+        ChooseWindow.SetActive(false);
+        ChooseWeapon(weapons);
+    }
+
+    public void Choose_N()
+    {
+        ChooseWindow.SetActive(false);
     }
 
     void CheckEnemies()
